@@ -1,0 +1,53 @@
+---
+title: "Fruit Flies and Circadian Rhythms"
+author: "Gregory J. Matthews and Sebastian Kirkpatrick"
+date: "2024-05-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Fruit Flies 
+
+
+```{r}
+library(tidyverse)
+library(DiscoRhythm)
+test <- as.data.frame(t(read.csv("/Users/gregorymatthews/Dropbox/CDSC/fruit_flies/MX7590~2(data)_clean_greg.csv", header = FALSE)))
+names(test) <- test[1,]
+test <- test[-1,]
+
+table(test$treatment)
+
+#Converting to numeric
+test[,9:ncol(test)] <- apply(test[,9:ncol(test)],2,as.numeric)
+
+test <- test %>% filter(treatment != "pool - pool")
+test <-
+  test %>% mutate(
+    replicate = substr(treatment, nchar(treatment), nchar(treatment)),
+    trt = substr(treatment, 1, nchar(treatment) - 4),
+    index = 1:192,
+    time = rep(seq(0, 46, 2), 8),
+    c_time = rep(seq(0, 22, 2), 16),
+    day = rep(rep(c(1, 2), each = 12), 8)
+  )
+test$trt[test$trt == "clock856"] <- "clk856"
+names(test) <- gsub(" ", "", names(test))
+
+```
+
+
+```{r}
+disco_sub <-
+  test %>% filter(trt == "clk856") %>% mutate(discoID = paste0("CT", c_time, "_", index, "_", replicate)) %>% select(c(9:584, 590))
+t_disco_sub <- as.data.frame(t(disco_sub[, -ncol(disco_sub)]))
+names(t_disco_sub) <- disco_sub$discoID
+t_disco_sub$IDs <- row.names(t_disco_sub)
+t_disco_sub <- t_disco_sub %>% relocate(IDs)
+indata <- t_disco_sub
+
+
+```
