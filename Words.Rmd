@@ -1,0 +1,12 @@
+---
+title: "Untitled"
+author: "Sebastian Kirkpatrick"
+date: "2024-05-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Using the R package suggested by Mads, DiscoRhythm, we performed our analysis on the data provided. We first formatted the data for the package. We named the samples in terms of Circular time, which was two replicates of two, 24 hour cycles. We got rid of the "pool - pool" group and did some cleaning so that the replicates all had the same respective treatment names. Those were iso: control, clk856: brain clock off, trf: time-restricted feeding, to: fat-body clock off. We then performed three separate tests for each treatment with the three time phases given: 8, 12, and 24 hours. Those test were the Cosinor, JTK Cycle, and the Lomb-Scargle, all performed through DiscoRhythm. The results provided the metabolites with significant cycles for that chosen period. Our results found two main things: First, we found metabolites with a 24 hour cycle in the trf group. Second, we found significant metabolites at the 12 hour period in the control group. The display these findings, we used Manhattan plots to compare the p-values to the Bonferroni-adjusted significance level. We then took the metabolites that did have cycles and create the time graphs to see what those cycles look. 
