@@ -11,7 +11,26 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Fruit Flies 
 
-Write something here!
+Using the R package suggested by Mads, DiscoRhythm, we performed our analysis on the data provided. We first formatted the data for the package. We named the samples in terms of Circular time, which was two replicates of two 24 hour cycles. We got rid of the "pool - pool" group and did some cleaning so that the replicates all had the same respective treatment names. Those were:
+
+- iso: control
+- clk856: brain clock off
+- trf: time-restricted feeding
+- to: fat-body clock off
+
+ 
+ We then performed three separate tests for each treatment with the three time phases given: 8, 12, and 24 hours. Those test were the Cosinor (CS), JTK Cycle (JTK), and the Lomb-Scargle (LS), all performed through DiscoRhythm. The results provided the metabolites with significant cycles for that chosen period. 
+ 
+Our results found two main things: 
+
+- First, we found metabolites with a 24 hour cycle in the trf group. 
+- Second, we found significant metabolites at the 12 hour period in the control group. 
+
+To display these findings, we presented tables for the the metabolites with the 20 smallest p-values.  These q-values presented in these tables are the adjusted p-values using the Benjamini-Hochberg procedure. 
+
+In addition to the tables, we used Manhattan plots to visually display the p-values (the red line on each plot is the Bonferroni-adjusted significance level, which is an extremely conservative cut-off).  
+
+We then took the metabolites that did have significant cycles, and created graphs of the metabolites versus time to see what those cycles look like. 
 
 ```{r}
 library(tidyverse)
@@ -96,7 +115,7 @@ knitr::kable(results$LS %>% arrange(pvalue) %>% head(20), format = "markdown") %
 }
 ```
 
-
+#Some examples that were found significant.  
 
 ```{r}
 library(ggplot2)
