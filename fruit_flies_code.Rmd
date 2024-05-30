@@ -11,21 +11,22 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Fruit Flies 
 
+Write something here!
 
 ```{r}
 library(tidyverse)
 library(DiscoRhythm)
-test <- as.data.frame(t(read.csv("/Users/gregorymatthews/Dropbox/CDSC/fruit_flies/MX7590~2(data)_clean_greg.csv", header = FALSE)))
+test <- as.data.frame(t(read.csv("./MX7590~2(data)_clean_greg.csv", header = FALSE)))
 names(test) <- test[1,]
 test <- test[-1,]
 
-table(test$treatment)
+#table(test$treatment)
 
 #Converting to numeric
 test[,9:ncol(test)] <- apply(test[,9:ncol(test)],2,as.numeric)
 
 test <- test %>% filter(treatment != "pool - pool")
-test <-
+test <- 
   test %>% mutate(
     replicate = substr(treatment, nchar(treatment), nchar(treatment)),
     trt = substr(treatment, 1, nchar(treatment) - 4),
@@ -41,13 +42,78 @@ names(test) <- gsub(" ", "", names(test))
 
 
 ```{r}
+#clk856, iso, to, trf
+for (t in c("clk856", "iso", "to", "trf")){
+  for (p in c(8, 12, 24)){
+    
 disco_sub <-
-  test %>% filter(trt == "clk856") %>% mutate(discoID = paste0("CT", c_time, "_", index, "_", replicate)) %>% select(c(9:584, 590))
+  test %>% filter(trt == t) %>% mutate(discoID = paste0("CT", c_time, "_", index, "_", replicate)) %>% select(c(9:584, 590))
 t_disco_sub <- as.data.frame(t(disco_sub[, -ncol(disco_sub)]))
-names(t_disco_sub) <- disco_sub$discoID
+names(t_disco_sub) <- test %>% filter(trt == t) %>% mutate(discoID = paste0("CT", c_time, "_", index, "_", replicate)) %>% pull(discoID)
 t_disco_sub$IDs <- row.names(t_disco_sub)
 t_disco_sub <- t_disco_sub %>% relocate(IDs)
 indata <- t_disco_sub
 
+#Converting dfrom DF to SE object.
+se <- discoDFtoSE(indata)
+
+#Check input 
+selectDataSE <- discoCheckInput(se)
+
+results <- discoODAs(selectDataSE,
+                         period=p,
+                         method=c("JTK","CS", "LS"),
+                         ncores=1,
+                         circular_t=TRUE)
+
+
+
+plot(-log(sort(results$JTK$pvalue)), ylim = c(0,15), main = paste("Treatment:  ",t," - Period: ", p, " - Test: JTK"), ylab = "-log(p-value)")
+abline(h = -log(0.05/length(results$JTK$pvalue)), col = "red")
+
+plot(-log(sort(results$CS$pvalue)), ylim = c(0,15), main = paste("Treatment:  ",t," - Period: ", p, " - Test: CS"), ylab = "-log(p-value)")
+abline(h = -log(0.05/length(results$CS$pvalue)), col = "red")
+
+plot(-log(sort(results$LS$pvalue)), ylim = c(0,15), main = paste("Treatment:  ",t," - Period: ", p, " - Test: LS"), ylab = "-log(p-value)")
+abline(h = -log(0.05/length(results$LS$pvalue)), col = "red")
+
+
+print("JTK smallest p-values")
+
+knitr::kable(results$JTK %>% arrange(pvalue) %>% head(20), format = "markdown") %>% print()
+
+print("CS smallest p-values")
+
+knitr::kable(results$CS %>% select(1:4) %>% arrange(pvalue) %>% head(20), format = "markdown") %>% print()
+
+print("LS smallest p-values")
+
+knitr::kable(results$LS %>% arrange(pvalue) %>% head(20), format = "markdown") %>% print()
+
+
+
+}
+}
+```
+
+
+
+```{r}
+library(ggplot2)
+test %>% filter(trt == "trf") %>% ggplot(aes(y = tagatose, x = time, color = replicate)) + geom_point() + geom_smooth() + ggtitle("trf")
+
+test %>% filter(trt == "trf") %>% ggplot(aes(y = phenylalanine, x = c_time, color = replicate)) + geom_point() + geom_smooth() + ggtitle("trf")
+```
+
+```{r}
+test %>% filter(trt == "iso") %>% ggplot(aes(y = levoglucosan , x = c_time, color = replicate)) + geom_point() + geom_smooth() + ggtitle("iso")
+
+
+test %>% filter(trt == "iso") %>% ggplot(aes(y = `520873` , x = c_time, color = replicate)) + geom_point() + geom_smooth() + ggtitle("iso")
+
+test %>% filter(trt == "iso") %>% ggplot(aes(y = `342000` , x = c_time, color = replicate)) + geom_point() + geom_smooth() + ggtitle("iso")
+
 
 ```
+
+
