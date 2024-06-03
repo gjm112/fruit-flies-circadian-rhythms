@@ -5,6 +5,13 @@ date: "2024-05-28"
 output: html_document
 ---
 
+1. Outliers: Are these plausible values? 
+2. Shifted cycles. Matacycle.  
+3. assumptions about shapes
+
+Power issues. 
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
